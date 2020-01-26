@@ -4,10 +4,16 @@ var mongoose = require('mongoose');
 var config = require('./config/database');
 var bodyparser = require('body-parser');
 var session = require('express-session');
+const flash = require("connect-flash");
+
 // var expressValidator = require('express-validator');
 const { check, validationResult } = require('express-validator');
+
 //connect to db
-mongoose.connect(config.database);
+// Mongodb config
+mongoose.set('useCreateIndex', true);
+mongoose.set('useUnifiedTopology', true);
+mongoose.connect(config.database, { useNewUrlParser:true });
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function () {
@@ -23,12 +29,6 @@ app.set('view engine', 'ejs');
 
 //set public folder
 app.use(express.static(path.join(__dirname, 'public')));
-app.get('/', function (req, res) {
-    //res.send('working');
-    res.render('index', {
-        title: 'HOME'
-    });
-});
 
 //body parser middelware
 //parser application/x-www-form-urlencoded
@@ -45,30 +45,24 @@ app.use(session({
     cookie: { secure: true }
 }));
 
-//express validator middelwave
-// app.use(expressValidator({
-//     errorFormatter: function(param, msg, value) {
-//         var namespace = param.split('.')
-//         , root    = namespace.shift()
-//         , formParam = root;
-  
-//       while(namespace.length) {
-//         formParam += '[' + namespace.shift() + ']';
-//       }
-//       return {
-//         param : formParam,
-//         msg   : msg,
-//         value : value
-//       };
-//     }
-//   }));
-
-//express messages middelware
-app.use(require('connect-flash')());
-app.use(function (req, res, next) {
-    res.locals.messages = require('express-messages'), (req, res);
-    next();
+app.use(flash());
+app.use(function(req, res, next){
+  res.locals.messages = req.flash();
+  next();
 });
+
+app.get('/', function (req, res) {
+    //res.send('working');
+    
+    //if error
+    req.flash("msg","Error Occured");
+    res.locals.messages = req.flash();
+
+    res.render('index', {
+        title: 'HOME'
+    });
+});
+
 //start the server
 var port = 3000;
 app.listen(port, function () {

@@ -1,22 +1,22 @@
-var moongoes=require('mongoose');
+var moongoes = require('mongoose');
 
 //page schema
 
-var pageschema=moongoes.Schema({
-    title:{
-        type:String,
-        required:true
+var pageschema = moongoes.Schema({
+    title: {
+        type: String,
+        required: true
     },
-    slug:{
-        type:String,
+    slug: {
+        type: String,
     },
-    content:{
-        type:String,
-        required:true
+    content: {
+        type: String,
+        required: true
     },
-    sorting:{
-        type:number,
+    sorting: {
+        type: number,
     }
 });
 
-var page=module.exports=moongoes.model('page',pageschema);
+var page = module.exports = moongoes.model('page', pageschema);
