@@ -5,15 +5,13 @@ var config = require('./config/database');
 var bodyparser = require('body-parser');
 var session = require('express-session');
 const flash = require("connect-flash");
-
-// var expressValidator = require('express-validator');
 const { check, validationResult } = require('express-validator');
 
 //connect to db
 // Mongodb config
 mongoose.set('useCreateIndex', true);
 mongoose.set('useUnifiedTopology', true);
-mongoose.connect(config.database, { useNewUrlParser:true });
+mongoose.connect(config.database, { useNewUrlParser: true });
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 db.once('open', function () {
@@ -46,22 +44,49 @@ app.use(session({
 }));
 
 app.use(flash());
-app.use(function(req, res, next){
-  res.locals.messages = req.flash();
-  next();
+app.use(function (req, res, next) {
+    res.locals.messages = req.flash();
+    next();
 });
 
-app.get('/', function (req, res) {
-    //res.send('working');
-    
+// Routes
+app.get('/', function (req, res) {    
     //if error
-    req.flash("msg","Error Occured");
+    req.flash("msg", "Error Occured");
     res.locals.messages = req.flash();
 
     res.render('index', {
-        title: 'HOME'
+        title: 'Main page'
     });
 });
+
+app.get('/reg', function (req, res) {    
+    res.render('register', {
+        title: 'Register'
+    });
+});
+
+//define router
+app.post('/register', [
+    check('email', 'email is required').isEmail(),
+    check('name', 'name is required').not().isEmpty(),
+    check('password', 'password is required').not().isEmpty(),
+], function (req, res, next) {
+    //check validate data
+    const result = validationResult(req);
+    var errors = result.errors;
+    for (var key in errors) {
+        console.log(errors[key].value);
+    }
+    if (!result.isEmpty()) {
+        //response validate data to register.ejs
+        res.render('register', {
+            errors: errors,
+            title: 'Register'
+        })
+    }
+});
+
 
 //start the server
 var port = 3000;

@@ -1,0 +1,23 @@
+<%- include('_layouts/header'); %>
+<h1>register</h1>
+
+<% if (locals.errors) { %>
+<ul>
+    <% Object.values(errors).forEach(function(error){ %>
+    <li><%= error.msg %></li>
+    <% }); %>
+</ul>
+<% } %>
+
+
+<form class="form-group" method="post" action="/register">
+    <label for="">Name:</label>
+    <input type="text" name="name" value="">
+    <label for="">email:</label>
+    <input type="email" name="email" value="">
+    <label for="">Password:</label>
+    <input type="password" name="password" value="">
+    <input type="submit" value="Submit">
+</form>
+
+<%- include('_layouts/footer'); %>
