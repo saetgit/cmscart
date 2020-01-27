@@ -78,12 +78,13 @@ app.post('/register', [
 ], function (req, res, next) {
     //check validate data
     const result = validationResult(req);
-    var errors = result.errors;
-    for (var key in errors) {
+    let errors = result.errors;  
+    for (let key in errors) {
         console.log(errors[key].value);
     }
     if (!result.isEmpty()) {
         //response validate data to register.ejs
+       
         res.render('register', {
             errors: errors,
             title: 'Register'

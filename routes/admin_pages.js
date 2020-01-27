@@ -16,7 +16,6 @@ router.get('/add-page', function (req, res) {
     let slug = "";
     let content = "";
     res.render('admin/add_page', { title, slug, content });
-    //rafti??? na sab kon
 });
 
 //post add page
@@ -40,73 +39,35 @@ router.post('/add-page', [
         //response validate data to register.ejs
         res.render('admin/add_page', { errors, slug, content, title });
     } else {
-        // res.json({ slug, content, title });
-        // return;
         Page.findOne({ slug }, (err, page) => {
             // ... code
             // console.log(page)
 
-            if (!page) {
-
-                res.render('admin/add_page', {
-                    errors: req.flash('danger', 'page slug exists,choose another!'),
-                    slug, content, title
-                });
-            }
-        })
-
-        return;
-        Page.findOne({ slug }, (err, page) => {
             if (page) {
-                req.flash('danger', 'page slug exists,choose another!');
-                res.render('admin/add_page', { errors, slug, content, title });
+                req.flash('msg', 'page slug exists,choose another!');
+                res.locals.messages = req.flash();
+                res.render('admin/add_page', {
+                    errors, slug, content, title
+                });
             } else {
-                const page = new Page()({
+                const page = new Page({
                     title,
                     slug,
                     content,
                     sorting: 0
                 });
-
-                res.send(page);
-                return;
-
-                //sab kpn azizam barati injas chashm
-                page.save(function (err) {
+                page.save(err => {
                     if (err)
                         return console.log(err);
                     req.flash('success', 'page add');
                     res.redirect('/admin/pages');
+                });
 
-                })
+
             }
         })
     }
 });
-
-
-// router.post('/add-page', function (req, res) {
-//     req.checkBody('title','Title must have a value.').notEmpty();
-//     req.checkBody('content','Content must have a value.').notEmpty();
-//     var title=req.body.title;
-//     var slug=req.body.slug.replace(/\s+/g,'-').toLowerCase();
-//     if(slug=="") slug=title.replace(/\s+/g,'-').toLowerCase();
-//     var content=req.body.content;
-
-//     var errors=req.validationErrors();
-//     if(errors){
-//         console.log('errors');
-//         res.render('admin/add_page',{
-//             title:title,
-//             slug:slug,
-//             content:content
-//         });
-//     }else{
-//         console.log('success');
-//     }
-
-
-// });
 
 //exports
 module.exports = router;
