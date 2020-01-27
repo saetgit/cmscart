@@ -11,6 +11,7 @@ const { check, validationResult } = require('express-validator');
 // Mongodb config
 mongoose.set('useCreateIndex', true);
 mongoose.set('useUnifiedTopology', true);
+
 mongoose.connect(config.database, { useNewUrlParser: true });
 var db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -49,6 +50,9 @@ app.use(function (req, res, next) {
     next();
 });
 
+// Admin routes
+app.use('/admin/pages', require('./routes/admin_pages'))
+
 // Routes
 app.get('/', function (req, res) {    
     //if error
@@ -84,6 +88,8 @@ app.post('/register', [
             errors: errors,
             title: 'Register'
         })
+    } else{
+        res.json(req.body);
     }
 });
 
