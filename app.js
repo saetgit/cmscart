@@ -46,7 +46,7 @@ app.use(session({
 
 app.use(flash());
 app.use(function (req, res, next) {
-    res.locals.messages = req.flash();
+    res.locals.errors = req.flash();
     next();
 });
 

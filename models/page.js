@@ -1,8 +1,7 @@
-var moongoes = require('mongoose');
+const mongoose = require('mongoose');
 
-//page schema
-
-var pageschema = moongoes.Schema({
+// Page schema
+const PageSchema = mongoose.Schema({
     title: {
         type: String,
         required: true
@@ -15,8 +14,9 @@ var pageschema = moongoes.Schema({
         required: true
     },
     sorting: {
-        type: number,
+        type: Number
     }
 });
 
-var page = module.exports = moongoes.model('page', pageschema);
+// Create model and export that
+const Page = module.exports = mongoose.model('Page', PageSchema);
