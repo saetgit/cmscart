@@ -1,0 +1,53 @@
+<%- include('../_layouts/adminheader'); -%>
+<h2 class="page-title">add a Products</h2>
+<a href="/admin/products/add-products" class="btn btn-primary">Add a new product</a>
+<hr>
+
+
+
+<% if(count>0){%>
+
+<table class="table table-striped">
+    <thead>
+        <tr class="home">
+            <th>Product</th>
+            <th>Price</th>
+            <th>Category</th>
+            <th>Product Image</th>
+            <th>Edit</th>
+            <th>Delete</th>
+        </tr>
+    </thead>
+    <tbody>
+
+        <% if (products) { %>
+            <% products.forEach(function(product){ %>
+            <tr>
+                <td><%= product.title %></td>
+                <td>$<%= parseFloat(product.price).toFixed(2) %></td>
+                <td><%= product.category %></td>
+                <td>
+                    <% if (product.image == ""){ %>
+                    <img src="/images/noimage.png">
+                    <%} else{%>
+                    <img src="/product_images/<%= product._id %>/<%=prouduct.image%>">
+                    <% } %>
+                </td>
+                <td><a href="/admin/products/edit-product/<%= product._id %>">Edit</a></td>
+                <td><a class="confirmDeletion" href="/admin/products/delete-product/<%= product._id %>">Delete</a></td>
+    
+            </tr>
+    
+    
+            <% }); %>
+            <% }; %>
+    </tbody>
+
+</table>
+
+<% } else{ %>
+<h1>
+    there not are products.
+</h1>
+<% } %>
+<%- include('../_layouts/adminfooter'); -%>

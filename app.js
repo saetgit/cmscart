@@ -6,6 +6,7 @@ var bodyparser = require('body-parser');
 var session = require('express-session');
 const flash = require("connect-flash");
 const { check, validationResult } = require('express-validator');
+var fileupload=require('express-fileupload');
 
 //connect to db
 // Mongodb config
@@ -28,6 +29,9 @@ app.set('view engine', 'ejs');
 
 //set public folder
 app.use(express.static(path.join(__dirname, 'public')));
+
+//Express fileupload middelware
+app.use(fileupload());
 
 //body parser middelware
 //parser application/x-www-form-urlencoded
@@ -52,8 +56,9 @@ app.use(function (req, res, next) {
 
 // Admin routes
 app.use('/admin/pages', require('./routes/admin_pages'))
-// var adminCategories=require('./routes/admin_categories.js');
 app.use('/admin/categories', require('./routes/admin_categories.js'))
+app.use('/admin/products', require('./routes/admin_products.js'))
+
 // Routes
 app.get('/', function (req, res) {    
     //if error

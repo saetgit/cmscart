@@ -1,6 +1,6 @@
 <%- include('../_layouts/adminheader'); -%>
-<h2 class="page-title">edit a page</h2>
-<a href="/admin/pages" class="btn btn-primary">back to all page</a>
+<h2 class="page-title">edit a category</h2>
+<a href="/admin/categories" class="btn btn-primary">back to all categories</a>
 <hr>
 <% if (locals.messages) { %>
 <ul>
@@ -20,20 +20,13 @@
 </ul>
 <% } %>
 
-<form method="POST" action="/admin/pages/edit-page/<%= id %>">
+<form method="POST" action="/admin/categories/edit-category/<%= id %>">
     <div class="form-group">
         <label for="">Title</label>
         input:<input type="text" name="title" value="<%= title %>" placeholder="title" class="form-control">
     </div>
-    <div class="form-group">
-        <label for="">slug</label>
-        input:<input type="text" name="slug" value="<%= slug %>" placeholder="slug" class="form-control">
-    </div>
-    <div class="form-group">
-        <label for="">content</label>
-        <textarea name="content" cols="30" rows="10" id="ta" class="form-control"
-            placeholder="content"><%= content %></textarea>
-    </div>
+
     <button class="btn btn-default">submit</button>
+    <input type="hidden" name="id" value="<%= id %>">
 </form>
 <%- include('../_layouts/adminfooter'); -%>

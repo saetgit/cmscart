@@ -2,16 +2,27 @@ const express = require('express');
 const router = express.Router();
 const flash = require("connect-flash");
 const { check, validationResult } = require('express-validator');
-//get page modle
-const Page = require('../models/page');
-
-//get pages index
+const mkdirp = require('mkdirp');
+const fs = require('fs-extra');
+const resize_Img = require('resize-img');
+//get Product modle
+const Product = require('../models/product');
+//get Category modle
+const Category = require('../models/category');
+//get products index
 router.get('/', function (req, res) {
-    Page.find({}).sort({ sorting: 1 }).exec((err, pages) => {
-        res.render('admin/pages', {
-            pages: pages
+
+    var count;
+    Product.count((err, c) => {
+        count = c;
+    });
+    Product.find((err,products)=>{
+        res.render('admin/products',{
+            products:products,
+            count:count
         });
     });
+
 });
 
 //get add page
@@ -151,7 +162,7 @@ router.post('/edit-page/:id', [
                         if (err)
                             return console.log(err);
                         req.flash('success', 'page add');
-                        res.redirect('/admin/pages/edit-page'+id);
+                        res.redirect('/admin/pages/edit-page' + id);
                     });
                 });
 
