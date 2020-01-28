@@ -2,36 +2,34 @@ const express = require('express');
 const router = express.Router();
 const flash = require("connect-flash");
 const { check, validationResult } = require('express-validator');
-//get page modle
-const Page = require('../models/page');
+//get category modle
+const Category = require('../models/category');
 
-//get pages index
+//get category index
 router.get('/', function (req, res) {
-    Page.find({}).sort({ sorting: 1 }).exec((err, pages) => {
-        res.render('admin/pages', {
-            pages: pages
+    Category.find((err, categories) => {
+        if (err) return console.log(err);
+        res.render('admin/categories', {
+            categories: categories
         });
     });
 });
-
-//get add page
-router.get('/add-page', function (req, res) {
+//get add category
+router.get('/add-category', function (req, res) {
     let title = "";
-    let slug = "";
-    let content = "";
-    res.render('admin/add_page', { title, slug, content });
+
+    res.render('admin/add_category', { title });
 });
 
-//post add page
-router.post('/add-page', [
+//post add category
+router.post('/add-category', [
     check('title', 'Title must have a value.').not().isEmpty(),
-    check('content', 'Content must have a value.').not().isEmpty(),
+
 ], function (req, res, next) {
 
     let title = req.body.title;
-    let slug = req.body.slug.replace(/\s+/g, '-').toLowerCase();
-    if (slug == "") slug = title.replace(/\s+/g, '-').toLowerCase();
-    let content = req.body.content;
+    let slug = title.replace(/\s+/g, '-').toLowerCase();
+
 
     //check validate data
     const result = validationResult(req);
@@ -41,30 +39,28 @@ router.post('/add-page', [
     }
     if (!result.isEmpty()) {
         //response validate data to register.ejs
-        res.render('admin/add_page', { errors, slug, content, title });
+        res.render('admin/add_category', { errors, title });
     } else {
-        Page.findOne({ slug }, (err, page) => {
+        Category.findOne({ slug }, (err, category) => {
             // ... code
             // console.log(page)
 
-            if (page) {
-                req.flash('msg', 'page slug exists,choose another!');
+            if (category) {
+                req.flash('msg', 'Category title exists,choose another!');
                 res.locals.messages = req.flash();
-                res.render('admin/add_page', {
-                    errors, slug, content, title
+                res.render('admin/add_category', {
+                    errors, title
                 });
             } else {
-                const page = new Page({
+                const category = new Category({
                     title,
-                    slug,
-                    content,
-                    sorting: 100
+                    slug
                 });
-                page.save(err => {
+                category.save(err => {
                     if (err)
                         return console.log(err);
-                    req.flash('success', 'page add');
-                    res.redirect('/admin/pages');
+                    req.flash('success', 'category add');
+                    res.redirect('/admin/categories');
                 });
 
 
@@ -164,10 +160,10 @@ router.post('/edit-page/:slug', [
 //get delete page
 router.get('/delete-page/:id', (req, res) => {
     Page.findByIdAndRemove(req.params.id, (err) => {
-            if (err) return console.log(err);
-            req.flash('success', 'page add');
-            res.redirect('/admin/pages');
-        
+        if (err) return console.log(err);
+        req.flash('success', 'page add');
+        res.redirect('/admin/pages');
+
     })
 });
 //exports

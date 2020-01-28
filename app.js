@@ -52,7 +52,8 @@ app.use(function (req, res, next) {
 
 // Admin routes
 app.use('/admin/pages', require('./routes/admin_pages'))
-
+// var adminCategories=require('./routes/admin_categories.js');
+app.use('/admin/categories', require('./routes/admin_categories.js'))
 // Routes
 app.get('/', function (req, res) {    
     //if error

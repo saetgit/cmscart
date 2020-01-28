@@ -1,0 +1,31 @@
+<%- include('../_layouts/adminheader'); -%>
+<h2 class="page-title">add a category</h2>
+<a href="/admin/categories" class="btn btn-primary">back to all page</a>
+<hr>
+<% if (locals.messages) { %>
+<ul>
+    <div class="alert alert-danger">
+        <li><%= messages.msg %></li>
+    </div>
+</ul>
+<% } %>
+
+<% if (locals.errors) { %>
+<ul>
+    <% Object.values(errors).forEach(function(error){ %>
+    <div class="alert alert-danger">
+        <li><%= error.msg %></li>
+    </div>
+    <% }); %>
+</ul>
+<% } %>
+
+<form method="POST" action="/admin/categories/add-category">
+    <div class="form-group">
+        <label for="">Title</label>
+        input:<input type="text" name="title" value="<%= title %>" placeholder="title" class="form-control">
+    </div>
+
+    <button class="btn btn-default">submit</button>
+</form>
+<%- include('../_layouts/adminfooter'); -%>
