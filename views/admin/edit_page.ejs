@@ -1,5 +1,5 @@
 <%- include('../_layouts/adminheader'); -%>
-<h2 class="page-title">add a page</h2>
+<h2 class="page-title">edit a page</h2>
 <a href="/admin/pages" class="btn btn-primary">back to all page</a>
 <hr>
 <% if (locals.messages) { %>
@@ -20,7 +20,7 @@
 </ul>
 <% } %>
 
-<form method="POST" action="/admin/pages/add-page">
+<form method="POST" action="/admin/pages/edit-page/<%= slug %>">
     <div class="form-group">
         <label for="">Title</label>
         input:<input type="text" name="title" value="<%= title %>" placeholder="title" class="form-control">
@@ -35,5 +35,6 @@
             placeholder="content"><%= content %></textarea>
     </div>
     <button class="btn btn-default">submit</button>
+    <input type="hidden" name="id" value="<%= id %>">
 </form>
 <%- include('../_layouts/adminfooter'); -%>
