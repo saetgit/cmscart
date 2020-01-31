@@ -5,18 +5,21 @@ const { check, validationResult } = require('express-validator');
 const mkdirp = require('mkdirp');
 const fs = require('fs-extra');
 const resize_Img = require('resize-img');
-//get Product modle
+var multer = require('multer')
+var upload = multer({ dest: 'uploads/' })
+
+//get Product model
 const Product = require('../models/product');
-//get Category modle
+//get Category model
 const Category = require('../models/category');
 //get products index
-router.get('/', function (req, res) {
+router.get('/', async (req, res) => {
 
     let countDocuments;
-    Product.estimatedDocumentCount((err, c) => {
+    await Product.estimatedDocumentCount((err, c) => {
         countDocuments = c;
     });
-    Product.find((err, products) => {
+    await Product.find((err, products) => {
         res.render('admin/products', { products, countDocuments });
     });
 
@@ -37,25 +40,23 @@ router.post('/add-product', [
     check('title', 'Title must have a value.').not().isEmpty(),
     check('desc', 'Description must have a value.').not().isEmpty(),
     check('price', 'Price must have a value.').isDecimal(),
-    check('image').custom(value => {
-        console.log(value);
-
-        let imageFile = typeof req.files.image !== "undefined" ? req.files.image.name : "";
-        return;
-        return User.findByEmail(value).then(user => {
-            if (user) {
-                return Promise.reject('E-mail already in use');
+    check('image').custom((value, { req }) => {
+        async () => {
+            try {
+                if (value === null) {
+                    throw new Error('Image is required');
+                }
+            } catch (error) {
+                console.log(error);
             }
-        });
-    }),
-    check('image', 'You must upload an image.').isImage(imageFile)
-
+        }
+    },
+        upload.single('name'))
 ], async (req, res, next) => {
     let title = req.body.title;
-    let slug = req.body.slug.replace(/\s+/g, '-').toLowerCase();
-    if (slug == "") slug = title.replace(/\s+/g, '-').toLowerCase();
     let content = req.body.content;
-
+    let desc = req.body.desc;
+    let categories = req.body.categories;
     //check validate data
     const result = validationResult(req);
     let errors = result.errors;
@@ -63,36 +64,17 @@ router.post('/add-product', [
         console.log(errors[key].value);
     }
     if (!result.isEmpty()) {
+        res.send(req.files);
         //response validate data to register.ejs
-        res.render('admin/add_page', { errors, slug, content, title });
+        res.render('admin/add_product', { errors, content, title, desc,categories });
     } else {
-        Page.findOne({ slug }, (err, page) => {
-            // ... code
-            // console.log(page)
-
-            if (page) {
-                req.flash('msg', 'page slug exists,choose another!');
-                res.locals.messages = req.flash();
-                res.render('admin/add_page', {
-                    errors, slug, content, title
-                });
-            } else {
-                const page = new Page({
-                    title,
-                    slug,
-                    content,
-                    sorting: 100
-                });
-                page.save(err => {
-                    if (err)
-                        return console.log(err);
-                    req.flash('success', 'page add');
-                    res.redirect('/admin/pages');
-                });
-
-
-            }
-        })
+        const imagePath = path.join(__dirname, '/public/images');
+        // const fileUpload = new Resize(imagePath);
+        if (!req.file) {
+            res.status(401).json({ error: 'Please provide an image' });
+        }
+        const filename = await imagePath.save(req.file.buffer);
+        return res.status(200).json({ name: filename });
     }
 });
 
