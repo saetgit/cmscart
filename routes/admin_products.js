@@ -12,33 +12,45 @@ const Category = require('../models/category');
 //get products index
 router.get('/', function (req, res) {
 
-    var count;
-    Product.count((err, c) => {
-        count = c;
+    let countDocuments;
+    Product.estimatedDocumentCount((err, c) => {
+        countDocuments = c;
     });
-    Product.find((err,products)=>{
-        res.render('admin/products',{
-            products:products,
-            count:count
-        });
+    Product.find((err, products) => {
+        res.render('admin/products', { products, countDocuments });
     });
 
 });
 
-//get add page
-router.get('/add-page', function (req, res) {
+//get add product
+router.get('/add-product', function (req, res) {
     let title = "";
-    let slug = "";
-    let content = "";
-    res.render('admin/add_page', { title, slug, content });
+    let desc = "";
+    let price = "";
+    Category.find((err, categories) => {
+        res.render('admin/add_product', { title, desc, categories, price });
+    });
 });
 
-//post add page
-router.post('/add-page', [
+//post add product
+router.post('/add-product', [
     check('title', 'Title must have a value.').not().isEmpty(),
-    check('content', 'Content must have a value.').not().isEmpty(),
-], function (req, res, next) {
+    check('desc', 'Description must have a value.').not().isEmpty(),
+    check('price', 'Price must have a value.').isDecimal(),
+    check('image').custom(value => {
+        console.log(value);
 
+        let imageFile = typeof req.files.image !== "undefined" ? req.files.image.name : "";
+        return;
+        return User.findByEmail(value).then(user => {
+            if (user) {
+                return Promise.reject('E-mail already in use');
+            }
+        });
+    }),
+    check('image', 'You must upload an image.').isImage(imageFile)
+
+], async (req, res, next) => {
     let title = req.body.title;
     let slug = req.body.slug.replace(/\s+/g, '-').toLowerCase();
     if (slug == "") slug = title.replace(/\s+/g, '-').toLowerCase();
@@ -124,6 +136,11 @@ router.get('/edit-page/:id', (req, res) => {
 router.post('/edit-page/:id', [
     check('title', 'Title must have a value.').not().isEmpty(),
     check('content', 'Content must have a value.').not().isEmpty(),
+    check('password').custom((value, { req }) => {
+        if (value !== req.body.passwordConfirmation) {
+            throw new Error('Password confirmation is incorrect');
+        }
+    })
 ], function (req, res, next) {
 
     let title = req.body.title;

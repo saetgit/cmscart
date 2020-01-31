@@ -98,9 +98,19 @@ app.post('/register', [
     } else{
         res.json(req.body);
     }
+
 });
 
-
+//Get Page Model
+const Page = require('./models/page');
+//Get all page and pass to header.ejs
+Page.find({}).sort({ sorting: 1 }).exec((err, pages) => {
+    if(err){
+        console.log(err);
+    }else{
+        app.locals.pages=pages;
+    }
+});
 //start the server
 var port = 3000;
 app.listen(port, function () {

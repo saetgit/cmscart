@@ -35,47 +35,45 @@
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
 
 <script src="src=" https://code.jquery.com/ui/1.12.0/jquery-ui.min.js"> </script> <script>
-    $(document).on("mouseup","#multiTable tr",function (e) {
-
-   
-    $('tbody').sortable({
-        items:"tr:not('.home')",
-        placeholder:"ui-state-hightlight",
-        update:function(){
-            var ids=$('tbody').sortable("serialize");
-            var url="/admin/pages/reorder-page";
-            $.post(url,ids);
-        }
-
-    });
-})
-
-//     $(function () {
-//     var html = "",
-//         index = -1;
-//     $(document).on("mouseup","#multiTable tr",function (e) {
-//         console.log("Mouse Up-> ")
-//         var index1 = $(this).index();
-//         var index2 = index;
-//         if (index1 == index2) {
-//             e.epreventDefault();
-//             return;
+    // $(document).on("mouseup","#multiTable tr",function (e) {
+    // $('tbody').sortable({
+//         items:"tr:not('.home')",
+//         placeholder:"ui-state-hightlight",
+//         update:function(){
+//             var ids=$('tbody').sortable("serialize");
+//             var url="/admin/pages/reorder-page";
+//             $.post(url,ids);
 //         }
-//         var spaceIndex1 = index2 + 1;
-//         var html1 = "<tr>" + $(this).html().trim() + "<tr>";
-//         var html2 = "<tr>" + html + "</tr>";
-//         console.log(html);
-//         $('#multiTable > tbody > tr').eq(index1).replaceWith(html2);
-//         $('#multiTable > tbody > tr').eq(index2).replaceWith(html1);
-//         $('#multiTable > tbody > tr').eq(spaceIndex1).remove();
+
 //     });
-//     $(document).on("mousedown","#multiTable tr",function (e) {
-//         console.log("Mouse Down->");
-//         html = $(this).html().trim();
-//         index = $(this).index();
-//         //console.log($(this).index());
-//         //console.log($(this).html().trim());
-//     });
-// });
+// })
+
+    $(function () {
+    var html = "",
+        index = -1;
+    $(document).on("mouseup","#multiTable tr",function (e) {
+        console.log("Mouse Up-> ")
+        var index1 = $(this).index();
+        var index2 = index;
+        if (index1 == index2) {
+            e.epreventDefault();
+            return;
+        }
+        var spaceIndex1 = index2 + 1;
+        var html1 = "<tr>" + $(this).html().trim() + "<tr>";
+        var html2 = "<tr>" + html + "</tr>";
+        console.log(html);
+        $('#multiTable > tbody > tr').eq(index1).replaceWith(html2);
+        $('#multiTable > tbody > tr').eq(index2).replaceWith(html1);
+        $('#multiTable > tbody > tr').eq(spaceIndex1).remove();
+    });
+    $(document).on("mousedown","#multiTable tr",function (e) {
+        console.log("Mouse Down->");
+        html = $(this).html().trim();
+        index = $(this).index();
+        //console.log($(this).index());
+        //console.log($(this).html().trim());
+    });
+});
 </script>
 <%- include('../_layouts/adminfooter'); -%>

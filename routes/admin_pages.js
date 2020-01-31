@@ -63,6 +63,13 @@ router.post('/add-page', [
                 page.save(err => {
                     if (err)
                         return console.log(err);
+                    Page.find({}).sort({ sorting: 1 }).exec((err, pages) => {
+                        if (err) {
+                            console.log(err);
+                        } else {
+                            app.locals.pages = pages;
+                        }
+                    });
                     req.flash('success', 'page add');
                     res.redirect('/admin/pages');
                 });
@@ -72,10 +79,8 @@ router.post('/add-page', [
         })
     }
 });
-
-//post reorder pages 
-router.post('/reorder-page', (req, res) => {
-    const ids = req.body['id[]'];
+//sort pages function
+function sortPages(ids, callback) {
     const count = 0;
     for (const i = 0; i < ids.length; i++) {
         const id = ids[i];
@@ -86,11 +91,24 @@ router.post('/reorder-page', (req, res) => {
                 page.save(function (err) {
                     if (err)
                         return console.log(err);
+                    ++count;
+                    if (count >= ids.length) {
+                        callback();
+                    }
                 });
             });
 
         })(count);
     }
+}
+//post reorder pages 
+router.post('/reorder-page', (req, res) => {
+    const ids = req.body['id[]'];
+    sortPages(ids, function () {
+
+    })
+
+
 });
 
 //get edit page
@@ -151,7 +169,7 @@ router.post('/edit-page/:id', [
                         if (err)
                             return console.log(err);
                         req.flash('success', 'page add');
-                        res.redirect('/admin/pages/edit-page'+id);
+                        res.redirect('/admin/pages/edit-page/' + id);
                     });
                 });
 
