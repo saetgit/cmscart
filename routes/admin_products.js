@@ -7,10 +7,40 @@ const fs = require('fs-extra');
 const resize_Img = require('resize-img');
 const path = require("path");
 const multer = require('multer')
-// const upload = multer({ dest: '/uploads/' });
+// const upload = multer({
+//     dest: 'public/images' // this saves your file into a directory called "uploads"
+// });
+// Setting Storage Engine
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        cb(null, "public/images");
+    },
+    filename: (req, file, cb) => {
+        cb(
+            null,
+            `${new Date().toISOString().replace(/:/g, "-")}${file.originalname}`
+        );
+    }
+});
+
+const fileFilter = (req, file, cb) => {
+    if (
+        file.mimetype === "image/jpeg" ||
+        file.mimetype === "image/png"
+    ) {
+        cb(null, true);
+    } else {
+        cb('Only .jpeg or png files are accepted', false);
+    }
+};
+
 const upload = multer({
-    dest: '/public/images' // this saves your file into a directory called "uploads"
-  }); 
+    storage: storage,
+    limits: {
+        fileSize: 1024 * 1024 * 1
+    },
+    fileFilter: fileFilter
+})
 
 //get Product model
 const Product = require('../models/product');
@@ -29,17 +59,47 @@ router.get('/', async (req, res) => {
 
 });
 
-router.post('/add-product', upload.single('uploadFile'),async (req, res) => {
+router.post('/add-product', upload.single('uploadFile'), [
+    check('title', 'Title must have a value.').not().isEmpty(),
+    check('content', 'Content must have a value.').not().isEmpty()
+], async (req, res) => {
     try {
-        console.log(await req.body);
-    
-    res.redirect('/');
+        console.log(req.body);
+        console.log(req.file);
+        return;
+
+        let title = req.body.title;
+        let content = req.body.content;
+        let desc = req.body.desc;
+        let categories = req.body.categories;
+
+        //check validate data
+        const result = validationResult(req);
+        let errors = result.errors;
+        for (let key in errors) {
+            console.log(errors[key].value);
+        }
+        if (!result.isEmpty()) {
+            res.send(req.files);
+            //response validate data to register.ejs
+            res.render('admin/add_product', { errors, content, title, desc, categories });
+        } else {
+            // const imagePath = path.join(__dirname, '/public/images');
+            // const fileUpload = new Resize(imagePath);
+            // if (!req.file) {
+            //     res.status(401).json({ error: 'Please provide an image' });
+            // }
+            return res.status(200).json({ name: 'ok' });
+
+        }
+
+
     } catch (error) {
-        
+
     }
 });
 //get add product
-router.get('/add-product', async(req, res)=> {
+router.get('/add-product', async (req, res) => {
     let title = "";
     let desc = "";
     let price = "";
@@ -49,9 +109,17 @@ router.get('/add-product', async(req, res)=> {
 });
 
 //post add product
-router.post('/add-product2', upload.single('image'), async (req, res, next) => {
+router.post('/add-product2', upload.single('image'), [
+    check('title', 'Title must have a value.').not().isEmpty(),
+    check('content', 'Content must have a value.').not().isEmpty(),
+    check('password').custom((value, { req }) => {
+        if (value !== req.body.passwordConfirmation) {
+            throw new Error('Password confirmation is incorrect');
+        }
+    })
+], async (req, res, next) => {
     try {
-        console.log(req.body);        
+        console.log(req.body);
 
 
         // let title = req.body.title;
