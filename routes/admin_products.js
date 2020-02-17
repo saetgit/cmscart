@@ -49,29 +49,33 @@ const Category = require('../models/category');
 //get products index
 router.get('/', async (req, res) => {
 
-    let countDocuments;
-    await Product.estimatedDocumentCount((err, c) => {
-        countDocuments = c;
-    });
-    await Product.find((err, products) => {
-        res.render('admin/products', { products, countDocuments });
-    });
+    try {
+        let countDocuments;
+        await Product.estimatedDocumentCount((err, c) => {
+            countDocuments = c;
+        });
+        await Product.find((err, products) => {
+            res.render('admin/products', { products, countDocuments });
+        });
+    } catch (error) {
+
+    }
 
 });
 
 router.post('/add-product', upload.single('uploadFile'), [
     check('title', 'Title must have a value.').not().isEmpty(),
-    check('content', 'Content must have a value.').not().isEmpty()
+    check('price', 'Price must have a value.').not().isEmpty(),
 ], async (req, res) => {
     try {
-        console.log(req.body);
-        console.log(req.file);
-        return;
 
         let title = req.body.title;
-        let content = req.body.content;
+        let price = req.body.price;
         let desc = req.body.desc;
-        let categories = req.body.categories;
+        let category = req.body.category;
+        let image = req.file.filename;
+
+        let categories = await Category.find();
 
         //check validate data
         const result = validationResult(req);
@@ -82,14 +86,23 @@ router.post('/add-product', upload.single('uploadFile'), [
         if (!result.isEmpty()) {
             res.send(req.files);
             //response validate data to register.ejs
-            res.render('admin/add_product', { errors, content, title, desc, categories });
+            res.render('admin/add_product', { errors, price, title, desc, category, categories });
         } else {
-            // const imagePath = path.join(__dirname, '/public/images');
-            // const fileUpload = new Resize(imagePath);
-            // if (!req.file) {
-            //     res.status(401).json({ error: 'Please provide an image' });
-            // }
-            return res.status(200).json({ name: 'ok' });
+
+            // Create new user
+            let newProduct = new Product({
+                title,
+                price,
+                desc,
+                category,
+                image
+            });
+
+            let result = await newProduct.save();
+
+            if (result) {
+                res.render('admin/products');
+            }
 
         }
 
@@ -108,49 +121,6 @@ router.get('/add-product', async (req, res) => {
     });
 });
 
-//post add product
-router.post('/add-product2', upload.single('image'), [
-    check('title', 'Title must have a value.').not().isEmpty(),
-    check('content', 'Content must have a value.').not().isEmpty(),
-    check('password').custom((value, { req }) => {
-        if (value !== req.body.passwordConfirmation) {
-            throw new Error('Password confirmation is incorrect');
-        }
-    })
-], async (req, res, next) => {
-    try {
-        console.log(req.body);
-
-
-        // let title = req.body.title;
-        // let content = req.body.content;
-        // let desc = req.body.desc;
-        // let categories = req.body.categories;
-        // //check validate data
-        // const result = validationResult(req);
-        // let errors = result.errors;
-        // for (let key in errors) {
-        //     console.log(errors[key].value);
-        // }
-        // if (!result.isEmpty()) {
-        //     res.send(req.files);
-        //     //response validate data to register.ejs
-        //     res.render('admin/add_product', { errors, content, title, desc, categories });
-        // } else {
-        //     // const imagePath = path.join(__dirname, '/public/images');
-        //     // const fileUpload = new Resize(imagePath);
-        //     // if (!req.file) {
-        //     //     res.status(401).json({ error: 'Please provide an image' });
-        //     // }
-        //     return res.status(200).json({ name: 'ok' });
-
-        // }
-    } catch (error) {
-        console.log(error);
-
-    }
-});
-
 //post reorder pages 
 router.post('/reorder-page', (req, res) => {
     const ids = req.body['id[]'];
@@ -159,9 +129,9 @@ router.post('/reorder-page', (req, res) => {
         const id = ids[i];
         count++;
         (function (count) {
-            page.findById(id, function (err, page) {
+            page.findById(id, (err, page) => {
                 page.sorting = count;
-                page.save(function (err) {
+                page.save((err) => {
                     if (err)
                         return console.log(err);
                 });
