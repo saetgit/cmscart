@@ -183,6 +183,14 @@ router.post('/edit-page/:id', [
 router.get('/delete-page/:id', (req, res) => {
     Page.findByIdAndRemove(req.params.id, (err) => {
         if (err) return console.log(err);
+        Page.find({}).sort({ sorting: 1 }).exec((err, pages) => {
+            if (err) {
+                console.log(err);
+            } else {
+                //app.locals.pages = pages;
+                app.locals.pages;
+            }
+        });
         req.flash('success', 'page delete');
         res.redirect('/admin/pages');
 

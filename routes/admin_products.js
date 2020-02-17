@@ -5,8 +5,12 @@ const { check, validationResult } = require('express-validator');
 const mkdirp = require('mkdirp');
 const fs = require('fs-extra');
 const resize_Img = require('resize-img');
-var multer = require('multer')
-var upload = multer({ dest: 'uploads/' })
+const path = require("path");
+const multer = require('multer')
+// const upload = multer({ dest: '/uploads/' });
+const upload = multer({
+    dest: '/public/images' // this saves your file into a directory called "uploads"
+  }); 
 
 //get Product model
 const Product = require('../models/product');
@@ -25,8 +29,17 @@ router.get('/', async (req, res) => {
 
 });
 
+router.post('/add-product', upload.single('uploadFile'),async (req, res) => {
+    try {
+        console.log(await req.body);
+    
+    res.redirect('/');
+    } catch (error) {
+        
+    }
+});
 //get add product
-router.get('/add-product', function (req, res) {
+router.get('/add-product', async(req, res)=> {
     let title = "";
     let desc = "";
     let price = "";
@@ -36,45 +49,37 @@ router.get('/add-product', function (req, res) {
 });
 
 //post add product
-router.post('/add-product', [
-    check('title', 'Title must have a value.').not().isEmpty(),
-    check('desc', 'Description must have a value.').not().isEmpty(),
-    check('price', 'Price must have a value.').isDecimal(),
-    check('image').custom((value, { req }) => {
-        async () => {
-            try {
-                if (value === null) {
-                    throw new Error('Image is required');
-                }
-            } catch (error) {
-                console.log(error);
-            }
-        }
-    },
-        upload.single('name'))
-], async (req, res, next) => {
-    let title = req.body.title;
-    let content = req.body.content;
-    let desc = req.body.desc;
-    let categories = req.body.categories;
-    //check validate data
-    const result = validationResult(req);
-    let errors = result.errors;
-    for (let key in errors) {
-        console.log(errors[key].value);
-    }
-    if (!result.isEmpty()) {
-        res.send(req.files);
-        //response validate data to register.ejs
-        res.render('admin/add_product', { errors, content, title, desc,categories });
-    } else {
-        const imagePath = path.join(__dirname, '/public/images');
-        // const fileUpload = new Resize(imagePath);
-        if (!req.file) {
-            res.status(401).json({ error: 'Please provide an image' });
-        }
-        const filename = await imagePath.save(req.file.buffer);
-        return res.status(200).json({ name: filename });
+router.post('/add-product2', upload.single('image'), async (req, res, next) => {
+    try {
+        console.log(req.body);        
+
+
+        // let title = req.body.title;
+        // let content = req.body.content;
+        // let desc = req.body.desc;
+        // let categories = req.body.categories;
+        // //check validate data
+        // const result = validationResult(req);
+        // let errors = result.errors;
+        // for (let key in errors) {
+        //     console.log(errors[key].value);
+        // }
+        // if (!result.isEmpty()) {
+        //     res.send(req.files);
+        //     //response validate data to register.ejs
+        //     res.render('admin/add_product', { errors, content, title, desc, categories });
+        // } else {
+        //     // const imagePath = path.join(__dirname, '/public/images');
+        //     // const fileUpload = new Resize(imagePath);
+        //     // if (!req.file) {
+        //     //     res.status(401).json({ error: 'Please provide an image' });
+        //     // }
+        //     return res.status(200).json({ name: 'ok' });
+
+        // }
+    } catch (error) {
+        console.log(error);
+
     }
 });
 
@@ -123,7 +128,7 @@ router.post('/edit-page/:id', [
             throw new Error('Password confirmation is incorrect');
         }
     })
-], function (req, res, next) {
+], (req, res, next) => {
 
     let title = req.body.title;
     let slug = req.body.slug.replace(/\s+/g, '-').toLowerCase();

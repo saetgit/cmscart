@@ -21,7 +21,7 @@
 </ul>
 <% } %>
 
-<form method="POST" action="/admin/products/add-product" anctype="multipart/form-data">
+<form method="POST" action="/admin/products/add-product" enctype="multipart/form-data">
     <div class="form-group">
         <label for="">Title</label>
         input:<input type="text" name="title" value="<%= title %>" placeholder="title" class="form-control">
@@ -44,11 +44,12 @@
     </div>
     <div class="form-group">
         <label for="">Image</label>
-        input:<input type="file" name="image" id="img" class="form-control" onchange="readURL(this);">
+        <!-- input:<input type="file" name="uploadFile" id="img" class="form-control" onchange="readURL(this);"> -->
+        input:<input type="file" name="uploadFile" id="uploadFile" class="form-control">
         <img src="#" id="imgPreview">
     </div>
 
-    <button class="btn btn-default">submit</button>
+    <button class="btn btn-default" type="submit">submit</button>
 </form>
 <script>
     function readURL(input) {
