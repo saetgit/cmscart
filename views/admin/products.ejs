@@ -30,7 +30,8 @@
                     <% if (product.image == ""){ %>
                     <img src="/images/noimage.png">
                     <%} else{%>
-                    <img src="/product_images/<%= product._id %>/<%=prouduct.image%>">
+                    <img src="/images/<%= product._id%>/<%=prouduct.image%>">
+                    
                     <% } %>
                 </td>
                 <td><a href="/admin/products/edit-product/<%= product._id %>">Edit</a></td>

@@ -53,6 +53,7 @@ router.get('/', async (req, res) => {
         let countDocuments;
         await Product.estimatedDocumentCount((err, c) => {
             countDocuments = c;
+            console.log(countDocuments);
         });
         await Product.find((err, products) => {
             res.render('admin/products', { products, countDocuments });
@@ -65,10 +66,12 @@ router.get('/', async (req, res) => {
 
 router.post('/add-product', upload.single('uploadFile'), [
     check('title', 'Title must have a value.').not().isEmpty(),
-    check('price', 'Price must have a value.').not().isEmpty(),
+    check('price', 'Price must have a value.').isDecimal(),
+    check('category', 'category must have a value.').not().isEmpty(),
+
 ], async (req, res) => {
     try {
-
+        let id = req.body.id;
         let title = req.body.title;
         let price = req.body.price;
         let desc = req.body.desc;
@@ -86,11 +89,12 @@ router.post('/add-product', upload.single('uploadFile'), [
         if (!result.isEmpty()) {
             res.send(req.files);
             //response validate data to register.ejs
-            res.render('admin/add_product', { errors, price, title, desc, category, categories });
+            res.render('admin/add_product', { errors, price, title, desc, category, image });
         } else {
 
             // Create new user
             let newProduct = new Product({
+                id,
                 title,
                 price,
                 desc,
@@ -99,10 +103,14 @@ router.post('/add-product', upload.single('uploadFile'), [
             });
 
             let result = await newProduct.save();
-
-            if (result) {
-                res.render('admin/products');
-            }
+            result.save(err => {
+                if (err)
+                    return console.log(err);
+                req.flash('success', 'product add');
+                res.redirect('/admin/products');
+            });
+      
+         
 
         }
 
