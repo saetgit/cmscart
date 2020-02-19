@@ -53,18 +53,6 @@ router.get('/', async (req, res) => {
         let products = await Product.find();
         res.render('admin/products', { products, countDocuments });
 
-        /*  inaro to neveshti khanumam :) balayi ro ham man neveshtam, man manzurm mesle bala bud, vali hamin ke az await estefade kardi afarin dare, barikala khanumam :*
-
-        let countDocuments;
-        await Product.estimatedDocumentCount((err, c) => {
-            countDocuments = c;
-            console.log(countDocuments);
-
-        });
-        await Product.find((err, products) => {
-            res.render('admin/products', { products, countDocuments });
-        });
-        */
     } catch (error) {
 
     }
@@ -136,6 +124,10 @@ router.get('/edit-product/:id', (req, res) => {
     var errors;
     if (req.session.errors) errors = req.session.errors;
     req.session.errors = null;
+
+    // let categories = Category.find();
+    // let p = Product.findById(req.params.id);
+    
     Category.find((err, categories) => {
         Product.findById(req.params.id, (err, p) => {
             if (err) {
@@ -156,10 +148,10 @@ router.get('/edit-product/:id', (req, res) => {
                             desc: p.desc,
                             categories,
                             category: p.category.replace(/\s+/g, '-').toLowerCase(),
-                            price:p.price,
-                            image:p.image,
-                            galleryimage:galleryimage,
-                            id:p._id
+                            price: p.price,
+                            image: p.image,
+                            galleryimage: galleryimage,
+                            id: p._id
                         });
 
                     }
@@ -228,20 +220,20 @@ router.post('/edit-page/:id', [
 });
 //get delete products
 router.get('/delete-products/:id', (req, res) => {
-    var id=req.params.id;
-    var path='public/images/'+id;
+    var id = req.params.id;
+    var path = 'public/images/' + id;
 
-    fs.remove(path,(err)=>{
-        if(err){
+    fs.remove(path, (err) => {
+        if (err) {
             console.log(err);
-        }else{
-            Product.findByIdAndRemove(id,(err)=>{
+        } else {
+            Product.findByIdAndRemove(id, (err) => {
                 console.log(err);
             });
-            req.flash('success','product delete');
+            req.flash('success', 'product delete');
             res.redirect('/admin/products');
         }
-        
+
     })
 });
 //exports
