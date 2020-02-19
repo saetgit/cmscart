@@ -7,9 +7,7 @@ const fs = require('fs-extra');
 const resize_Img = require('resize-img');
 const path = require("path");
 const multer = require('multer')
-// const upload = multer({
-//     dest: 'public/images' // this saves your file into a directory called "uploads"
-// });
+
 // Setting Storage Engine
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -50,14 +48,23 @@ const Category = require('../models/category');
 router.get('/', async (req, res) => {
 
     try {
+
+        let countDocuments = await Product.estimatedDocumentCount();
+        let products = await Product.find();
+        res.render('admin/products', { products, countDocuments });
+
+        /*  inaro to neveshti khanumam :) balayi ro ham man neveshtam, man manzurm mesle bala bud, vali hamin ke az await estefade kardi afarin dare, barikala khanumam :*
+
         let countDocuments;
         await Product.estimatedDocumentCount((err, c) => {
             countDocuments = c;
             console.log(countDocuments);
+
         });
         await Product.find((err, products) => {
             res.render('admin/products', { products, countDocuments });
         });
+        */
     } catch (error) {
 
     }
@@ -109,12 +116,7 @@ router.post('/add-product', upload.single('uploadFile'), [
                 req.flash('success', 'product add');
                 res.redirect('/admin/products');
             });
-      
-         
-
         }
-
-
     } catch (error) {
 
     }

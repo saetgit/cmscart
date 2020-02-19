@@ -28,6 +28,9 @@ app.set('view engine', 'ejs');
 
 //set public folder
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/img', express.static(__dirname + '/public/images'));
+
+app.locals.baseURL = "http://localhost:3000"
 
 //body parser middelware
 //parser application/x-www-form-urlencoded

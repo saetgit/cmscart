@@ -20,28 +20,20 @@
     </thead>
     <tbody>
 
-        <% if (products) { %>
-            <% products.forEach(function(product){ %>
-            <tr>
-                <td><%= product.title %></td>
-                <td>$<%= parseFloat(product.price).toFixed(2) %></td>
-                <td><%= product.category %></td>
-                <td>
-                    <% if (product.image == ""){ %>
-                    <img src="/images/noimage.png">
-                    <%} else{%>
-                    <img src="/images/<%= product._id%>/<%=prouduct.image%>">
-                    
-                    <% } %>
-                </td>
-                <td><a href="/admin/products/edit-product/<%= product._id %>">Edit</a></td>
-                <td><a class="confirmDeletion" href="/admin/products/delete-product/<%= product._id %>">Delete</a></td>
-    
-            </tr>
-    
-    
-            <% }); %>
-            <% }; %>
+        <% products.forEach(function(product){ %>
+        <tr>
+            <td><%= product.title %></td>
+            <td>$<%= parseFloat(product.price).toFixed(2) %></td>
+            <td><%= product.category %></td>
+            <% if (product.image) { %>
+                
+                <img src="<%= baseURL %>/img/<%= product.image %>" alt="">
+                     
+
+            <% } %>
+        </tr>
+        <% }); %>
+
     </tbody>
 
 </table>
