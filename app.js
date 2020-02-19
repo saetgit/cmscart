@@ -100,6 +100,17 @@ app.post('/register', [
 
 });
 
+//Get category Model
+const Category = require('./models/category');
+//Get all categoreis and pass to header.ejs
+Category.find((err, categoreis) => {
+    if (err) {
+        console.log(err);
+    } else {
+        app.locals.categoreis = categoreis;
+    }
+});
+
 //Get Page Model
 const Page = require('./models/page');
 //Get all page and pass to header.ejs
@@ -110,6 +121,7 @@ Page.find({}).sort({ sorting: 1 }).exec((err, pages) => {
         app.locals.pages = pages;
     }
 });
+
 //start the server
 var port = 3000;
 app.listen(port, function () {

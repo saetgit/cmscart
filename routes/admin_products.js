@@ -4,6 +4,7 @@ const flash = require("connect-flash");
 const { check, validationResult } = require('express-validator');
 const mkdirp = require('mkdirp');
 const fs = require('fs-extra');
+// const fs = require('fs');
 const resize_Img = require('resize-img');
 const path = require("path");
 const multer = require('multer')
@@ -35,7 +36,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
     storage: storage,
     limits: {
-        fileSize: 1024 * 1024 * 1
+        fileSize: 1024 * 1024 * 6
     },
     fileFilter: fileFilter
 })
@@ -66,13 +67,8 @@ router.post('/add-product', upload.single('uploadFile'), [
 
 ], async (req, res) => {
     try {
-        let id = req.body.id;
-        let title = req.body.title;
-        let price = req.body.price;
-        let desc = req.body.desc;
-        let category = req.body.category;
         let image = req.file.filename;
-
+        let { id, title, price, desc, category } = await req.body;
         let categories = await Category.find();
 
         //check validate data
@@ -111,54 +107,42 @@ router.post('/add-product', upload.single('uploadFile'), [
 });
 //get add product
 router.get('/add-product', async (req, res) => {
-    let title = "";
-    let desc = "";
-    let price = "";
-    Category.find((err, categories) => {
+    try {
+
+        let title = "";
+        let desc = "";
+        let price = "";
+
+        let categories = await Category.find();
         res.render('admin/add_product', { title, desc, categories, price });
-    });
+
+    } catch (error) {
+
+    }
 });
 
 //get edit product
-router.get('/edit-product/:id', (req, res) => {
-    var errors;
-    if (req.session.errors) errors = req.session.errors;
-    req.session.errors = null;
+router.get('/edit-product/:id', async (req, res) => {
 
-    // let categories = Category.find();
-    // let p = Product.findById(req.params.id);
-    
-    Category.find((err, categories) => {
-        Product.findById(req.params.id, (err, p) => {
-            if (err) {
-                console.log(err);
-                res.redirect('/admin/products')
-            } else {
-                var galleryDir = 'public/images' + p._id + '/gallery';
-                var galleryimage = null;
-
-                fs.readdir(galleryDir, (err, files) => {
-                    if (err) {
-                        console.log(err);
-                    } else {
-                        galleryimage = files;
-                        res.render('admin/edit_product', {
-                            title: p.title,
-                            errors: errors,
-                            desc: p.desc,
-                            categories,
-                            category: p.category.replace(/\s+/g, '-').toLowerCase(),
-                            price: p.price,
-                            image: p.image,
-                            galleryimage: galleryimage,
-                            id: p._id
-                        });
-
-                    }
-                });
-            }
+    try {
+        let categories = await Category.find();
+        let { title, desc, category, price, image, _id } = await Product.findById(req.params.id);
+        category = category.replace(/\s+/g, '-').toLowerCase();
+        res.render('admin/edit_product', {
+            title,
+            desc,
+            categories,
+            category,
+            price,
+            image,
+            id: _id
         });
-    });
+
+    } catch (error) {
+        console.log(error);
+        res.redirect('/admin/products')
+    }
+
 
 });
 //post edit page
@@ -219,22 +203,23 @@ router.post('/edit-page/:id', [
     }
 });
 //get delete products
-router.get('/delete-products/:id', (req, res) => {
-    var id = req.params.id;
-    var path = 'public/images/' + id;
-
-    fs.remove(path, (err) => {
-        if (err) {
-            console.log(err);
-        } else {
-            Product.findByIdAndRemove(id, (err) => {
-                console.log(err);
-            });
-            req.flash('success', 'product delete');
-            res.redirect('/admin/products');
-        }
-
-    })
+router.get('/delete-product/:id', async(req, res) => {
+try {
+  
+    let { id } = req.params;
+    let { image } = await Product.findById(req.params.id);
+    // choon faqat esme ax ro mikhayim dashte bashim vase hazf faqat image ro qable delete az database mikhunim
+    // hala ba in khat record ro delete mikonim
+    let status = await Product.findByIdAndRemove(id);
+    // hala esme ax ro darim bayad berim ax ro az folder delete konim ba in dastur
+    fs.unlinkSync('public/images/' + image);
+    req.flash('success', 'product delete');
+    res.redirect('/admin/products');
+} catch (error) {
+    console.log(error);
+    
+}
+    
 });
 //exports
 module.exports = router;
