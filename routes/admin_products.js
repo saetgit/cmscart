@@ -131,41 +131,43 @@ router.get('/add-product', async (req, res) => {
     });
 });
 
-//post reorder pages 
-router.post('/reorder-page', (req, res) => {
-    const ids = req.body['id[]'];
-    const count = 0;
-    for (const i = 0; i < ids.length; i++) {
-        const id = ids[i];
-        count++;
-        (function (count) {
-            page.findById(id, (err, page) => {
-                page.sorting = count;
-                page.save((err) => {
-                    if (err)
-                        return console.log(err);
+//get edit product
+router.get('/edit-product/:id', (req, res) => {
+    var errors;
+    if (req.session.errors) errors = req.session.errors;
+    req.session.errors = null;
+    Category.find((err, categories) => {
+        Product.findById(req.params.id, (err, p) => {
+            if (err) {
+                console.log(err);
+                res.redirect('/admin/products')
+            } else {
+                var galleryDir = 'public/images' + p._id + '/gallery';
+                var galleryimage = null;
+
+                fs.readdir(galleryDir, (err, files) => {
+                    if (err) {
+                        console.log(err);
+                    } else {
+                        galleryimage = files;
+                        res.render('admin/edit_product', {
+                            title: p.title,
+                            errors: errors,
+                            desc: p.desc,
+                            categories,
+                            category: p.category.replace(/\s+/g, '-').toLowerCase(),
+                            price:p.price,
+                            image:p.image,
+                            galleryimage:galleryimage,
+                            id:p._id
+                        });
+
+                    }
                 });
-            });
-
-        })(count);
-    }
-});
-
-//get edit page
-router.get('/edit-page/:id', (req, res) => {
-    Page.findById(req.params.id).then((page) => {
-        if (!page) { //if page not exist in db
-            return res.status(404).send('Page not found');
-        }
-        res.render('admin/edit_page', { //page  exist
-            title: page.title,
-            slug: page.slug,
-            content: page.content,
-            id: page._id
+            }
         });
-    }).catch((e) => {//bad request 
-        res.status(400).send(e);
     });
+
 });
 //post edit page
 router.post('/edit-page/:id', [
@@ -224,13 +226,22 @@ router.post('/edit-page/:id', [
         })
     }
 });
-//get delete page
-router.get('/delete-page/:id', (req, res) => {
-    Page.findByIdAndRemove(req.params.id, (err) => {
-        if (err) return console.log(err);
-        req.flash('success', 'page delete');
-        res.redirect('/admin/pages');
+//get delete products
+router.get('/delete-products/:id', (req, res) => {
+    var id=req.params.id;
+    var path='public/images/'+id;
 
+    fs.remove(path,(err)=>{
+        if(err){
+            console.log(err);
+        }else{
+            Product.findByIdAndRemove(id,(err)=>{
+                console.log(err);
+            });
+            req.flash('success','product delete');
+            res.redirect('/admin/products');
+        }
+        
     })
 });
 //exports

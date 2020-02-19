@@ -54,7 +54,7 @@ app.use(function (req, res, next) {
 });
 
 // Admin routes
-app.use('/admin/pages', require('./routes/admin_pages'))
+app.use('/admin/pages', require('./routes/admin_pages.js'))
 app.use('/admin/categories', require('./routes/admin_categories.js'))
 app.use('/admin/products', require('./routes/admin_products.js'))
 
