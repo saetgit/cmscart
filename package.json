@@ -17,9 +17,9 @@
   },
   "homepage": "https://github.com/saetgit/cmscart#readme",
   "dependencies": {
-    "body-parser": "^1.19.0",
+    "body-parser": "^1.20.1",
     "ejs": "^3.0.1",
-    "express": "^4.17.1",
+    "express": "^4.18.2",
     "express-fileupload": "^1.1.6",
     "express-flash": "0.0.2",
     "express-messages": "^1.0.1",
